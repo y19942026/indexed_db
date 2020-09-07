@@ -1,5 +1,4 @@
 .App {
-  padding: 50px;
 }
 
 .App-logo {
@@ -28,28 +27,43 @@
   color: #61dafb;
 }
 
+header {
+  padding: 50px 0 0 50px;
+  overflow: hidden;
+}
+.h3 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
 .list {
-
+  margin: 10px 0 0 20px;
+  height: calc(100vh - 162px);
+  overflow: auto;
 }
 
 li {
   width: 400px;
   position: relative;
-  line-height: 26px;
+  line-height: 40px;
 }
 
 li:hover {
-  cursor: pointer;
   background-color: #ddd;
 }
 
-li i {
+li i, li .checkbox {
   position: absolute;
   right: 0;
   top: 0;
   font-style: normal;
-  font-size: 16px;
-  width: 26px;
-  height: 26px;
+  font-size: 26px;
+  width: 40px;
+  height: 40px;
   text-align: center;
+  cursor: pointer;
+}
+
+li .checkbox {
+  right: 40px;
+  width: auto;
 }

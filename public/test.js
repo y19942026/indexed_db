@@ -451,3 +451,27 @@
   addEventListeners()
 
 })() // Immediately-Invoked Function Expression (IIFE)
+
+// 仅匹配 "Donna"
+const singleKeyRange = IDBKeyRange.only('Donna')
+
+// 匹配所有超过“Bill”的，包括“Bill”
+const lowerBoundKeyRange = IDBKeyRange.lowerBound('Bill')
+
+// 匹配所有超过“Bill”的，但不包括“Bill”
+const lowerBoundOpenKeyRange = IDBKeyRange.lowerBound('Bill', true)
+
+// 匹配所有不超过“Donna”的，但不包括“Donna”
+const upperBoundOpenKeyRange = IDBKeyRange.upperBound('Donna', true)
+
+// 匹配所有在“Bill”和“Donna”之间的，但不包括“Donna”
+const boundKeyRange = IDBKeyRange.bound('Bill', 'Donna', false, true)
+
+// 使用其中的一个键范围，把它作为 openCursor()/openKeyCursor 的第一个参数
+index.openCursor(boundKeyRange).onsuccess = function(event) {
+  const cursor = event.target.result
+  if (cursor) {
+    // 当匹配时进行一些操作
+    cursor.continue()
+  }
+}
