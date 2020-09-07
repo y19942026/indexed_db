@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  padding: 50px;
 }
 
 .App-logo {
@@ -28,11 +28,28 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.list {
+
+}
+
+li {
+  width: 400px;
+  position: relative;
+  line-height: 26px;
+}
+
+li:hover {
+  cursor: pointer;
+  background-color: #ddd;
+}
+
+li i {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-style: normal;
+  font-size: 16px;
+  width: 26px;
+  height: 26px;
+  text-align: center;
 }
