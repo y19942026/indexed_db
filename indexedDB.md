@@ -37,9 +37,10 @@ IndexedDB 是一种底层 API，用于在客户端存储大量的结构化数据
 
 >第二个参数，就是数据库的版本号
 >>重要：版本号是一个 unsigned long long 数字，这意味着它可以是一个特别大的数字，但不能使用浮点数，否则它将会被转变成离它最近的整数，这可能导致 upgradeneeded 事件不会被触发。例如，不要使用 2.4 作为版本号。
-  var request = indexedDB.open("MyTestDatabase", 2.4); // 不要这么做，因为版本会被置为 2
+  const request = indexedDB.open("MyTestDatabase", 2.4); // 不要这么做，因为版本会被置为 2
 
->返回一个IDBDatabase对象
+返回一个IDBDatabase对象
+
 ```javascript
 const request = window.indexedDB.open('db')
 request.onerror = function(event) {
@@ -59,7 +60,7 @@ request.onupgradeneeded = function(event) {
 
 #### 构建数据库
 键路径(keyPath)|键生成器(autoIncrement)| 描述
----|:---|:---
+---|---|---
 No|No|这种对象存储空间可以持有任意类型的值，甚至是像数字和字符串这种基本数据类型的值。每当我们想要增加一个新值的时候，必须提供一个单独的键参数。
 Yes|No|这种对象存储空间只能持有 JavaScript 对象。这些对象必须具有一个和 key path 同名的属性。
 No|Yes|这种对象存储空间可以持有任意类型的值。键会为我们自动生成，或者如果你想要使用一个特定键的话你可以提供一个单独的键参数。
@@ -72,10 +73,11 @@ Yes|Yes|这种对象存储空间只能持有 JavaScript 对象。通常一个键
 IDBDatabase.transaction(storeNames[, mode])
 storeNames: 作用域，单个对象仓库或对象仓库数组，传空数组是表示跨越所有的对象存储空间
 mode: 事务模式，可选，提供了模式: readonly, readwrite, versionchange,默认 readonly
->修改数据库模式或结构——包括新建或删除对象仓库或索引，只能在 versionchange 事务中才能实现。
+修改数据库模式或结构——包括新建或删除对象仓库或索引，只能在 versionchange 事务中才能实现。
+
 
 ```javascript
-var transaction = db.transaction(["customers"], "readwrite")
+const transaction = db.transaction(["customers"], "readwrite")
 ```
 
 ##### 新增数据
@@ -95,9 +97,9 @@ transaction.onerror = function(event) {
   // 错误处理
 };
 
-var objectStore = transaction.objectStore("customers");
+const objectStore = transaction.objectStore("customers");
 customerData.forEach(function(customer) {
-  var request = objectStore.add(customer);
+  const request = objectStore.add(customer);
   request.onsuccess = function(event) {
     // event.target.result === customer.ssn;
   };
@@ -107,7 +109,7 @@ customerData.forEach(function(customer) {
 ##### 删除数据
 IDBObjectStore.delete(key)
 ```javascript
-var request = db.transaction(["customers"], "readwrite")
+const request = db.transaction(["customers"], "readwrite")
                 .objectStore("customers")
                 .delete("444-44-4444");
 request.onsuccess = function(event) {
@@ -118,9 +120,9 @@ request.onsuccess = function(event) {
 ##### 查询数据
 IDBObjectStore.get(key) // 查询单条记录
 ```javascript
-var transaction = db.transaction(["customers"]);
-var objectStore = transaction.objectStore("customers");
-var request = objectStore.get("444-44-4444");
+const transaction = db.transaction(["customers"]);
+const objectStore = transaction.objectStore("customers");
+const request = objectStore.get("444-44-4444");
 request.onerror = function(event) {
   // 错误处理!
 };
@@ -132,9 +134,9 @@ request.onsuccess = function(event) {
 IDBObjectStore.getAll() // 查询所有记录
 IDBObjectStore.getAllKey() // 查询所有key
 ```javascript
-var transaction = db.transaction(["customers"]);
-var objectStore = transaction.objectStore("customers");
-var request = objectStore.getAll();
+const transaction = db.transaction(["customers"]);
+const objectStore = transaction.objectStore("customers");
+const request = objectStore.getAll();
 request.onerror = function(event) {
   // 错误处理!
 };
@@ -145,21 +147,23 @@ request.onsuccess = function(event) {
 ```
 
 ##### 更新数据
+objectStore.put(key) // 修改记录
+
 ```javascript
-var objectStore = db.transaction(["customers"], "readwrite").objectStore("customers");
-var request = objectStore.get("444-44-4444");
+const objectStore = db.transaction(["customers"], "readwrite").objectStore("customers");
+const request = objectStore.get("444-44-4444");
 request.onerror = function(event) {
   // 错误处理
 };
 request.onsuccess = function(event) {
   // 获取我们想要更新的数据
-  var data = event.target.result;
+  const data = event.target.result;
 
   // 更新你想修改的数据
   data.age = 42;
 
   // 把更新过的对象放回数据库
-  var requestUpdate = objectStore.put(data);
+  const requestUpdate = objectStore.put(data);
    requestUpdate.onerror = function(event) {
      // 错误处理
    };
@@ -179,7 +183,7 @@ request.onsuccess = function(event) {
 ```
 通过索引查询数据
 ```javascript
-var index = objectStore.index("name");
+const index = objectStore.index("name");
 
 index.get("Donna").onsuccess = function(event) {
   alert("Donna's SSN is " + event.target.result.ssn);
@@ -190,10 +194,10 @@ index.get("Donna").onsuccess = function(event) {
 openCursor: 遍历对象存储空间中的所有值
 openKeyCursor: 遍历对象存储空间中的所有key
 ```javascript
-var objectStore = db.transaction("customers").objectStore("customers");
+const objectStore = db.transaction("customers").objectStore("customers");
 
 objectStore.openCursor().onsuccess = function(event) {
-  var cursor = event.target.result;
+  const cursor = event.target.result;
   if (cursor) {
     alert("Name for SSN " + cursor.key + " is " + cursor.value.name);
     cursor.continue();
@@ -206,7 +210,8 @@ objectStore.openCursor().onsuccess = function(event) {
 >接收两个参数，第一个 key range 对象来限制被检索的项目的范围。
 >第二个参数，指定迭代方向，next: 正序（默认），prev: 倒序，IDBCursor.nextunique | IDBCursor.prevunique: 过滤迭代时重复的索引
 
->当到达数据的末尾时（或者没有匹配 openCursor() 请求的条目）你仍然会得到一个成功回调，但是 result 属性是 null
+当到达数据的末尾时（或者没有匹配 openCursor() 请求的条目）你仍然会得到一个成功回调，但是 result 属性是 null
+
 ```javascript
 // 仅匹配 "Donna"
 const singleKeyRange = IDBKeyRange.only('Donna')
