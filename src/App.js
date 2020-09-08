@@ -3,14 +3,16 @@ import moment from 'moment'
 import { IndexedDBClass } from './indexedDB'
 import './App.css'
 
-let maxId = 0
+let maxId = 100
+const db = new IndexedDBClass()
 function App() {
   const inputRef = useRef(null)
   const [val, setVal] = useState('')
-  const [filter, setFilter] = useState('')
+  const [key, setKey] = useState('')
+  const [cursor, setCursor] = useState('')
   const [index, setIndex] = useState('')
+  const [radio, setRadio] = useState('0')
   const [list, setList] = useState([])
-  const db = new IndexedDBClass()
 
   useEffect(() => {
     maxId = Math.max(...list.filter(({ id }) => Number.isInteger(id)).map(_ => _.id), maxId)
@@ -32,10 +34,18 @@ function App() {
     setVal(value)
   }
 
-  const handleFilterChange = ({ target: { value: f } }) => {
-    setFilter(f)
+  const handleKeyChange = ({ target: { value: f } }) => {
+    setKey(f)
+    db.get(+f)
+      .then(data => {
+        setList(data ? [data] : [])
+      })
+  }
+
+  const handleCursorChange = ({ target: { value: f } }) => {
+    setCursor(f)
     const arr = []
-    db.filter(cursor => {
+    db.openCursor(cursor => {
       if (cursor === null) {
         setList(arr)
         return null
@@ -52,10 +62,10 @@ function App() {
     })
   }
 
-  const handleIndexChange = ({ target: { value: i } }) => {
+  const handleIndexGetChange = ({ target: { value: i } }) => {
     setIndex(i)
     const arr = []
-    db.index(cursor => {
+    db.indexGet(cursor => {
       if (cursor === null) {
         setList(arr)
         return null
@@ -64,6 +74,25 @@ function App() {
       if (i === '') {
         arr.push(cursor.value)
       } else if (v === i) {
+        arr.push(cursor.value)
+      }
+      cursor.continue()
+    })
+  }
+
+  const handleIndexCursorChange = ({ target: { value: s } }) => {
+    setRadio(s)
+    const arr = []
+    db.indexCursor(cursor => {
+      if (cursor === null) {
+        setList(arr)
+        return null
+      }
+      if (s === '0') {
+        arr.push(cursor.value)
+      } else if (s === '1' && cursor.value.status) {
+        arr.push(cursor.value)
+      } else if (s === '2' && !cursor.value.status) {
         arr.push(cursor.value)
       }
       cursor.continue()
@@ -104,7 +133,15 @@ function App() {
         <div className='h3'>todo list</div>
         <label>
           新增：
-          <input ref={inputRef} type='text' value={val} autoFocus onChange={handleChange} onKeyPress={handleKeyPress} />
+          <input
+            ref={inputRef}
+            type='text'
+            value={val}
+            autoFocus
+            placeholder='val'
+            onChange={handleChange}
+            onKeyPress={handleKeyPress}
+          />
         </label>
         {/*<button onClick={handleAdd}>新增</button>*/}
 
@@ -112,17 +149,80 @@ function App() {
         <br/>
 
         <label>
-          key查找：
-          <input type='text' value={filter} onChange={handleFilterChange}/>
+          get方法查找：
+          <input
+            type='text'
+            value={key}
+            placeholder='time'
+            onChange={handleKeyChange}
+          />
         </label>
 
         <br/>
         <br/>
 
         <label>
-          index查找：
-          <input type='text' value={index} onChange={handleIndexChange}/>
+          cousor查找：
+          <input
+            type='text'
+            value={cursor}
+            placeholder='time | key'
+            onChange={handleCursorChange}
+          />
         </label>
+
+        <br/>
+        <br/>
+
+        <label>
+          index get查找：
+          <input
+            type='text'
+            value={index}
+            placeholder='id'
+            onChange={handleIndexGetChange}
+          />
+        </label>
+
+        <br/>
+        <br/>
+
+        <div>
+          index cursor查找：
+          <label>
+            <input
+              type='radio'
+              name='status'
+              checked={radio === '0'}
+              value='0'
+              placeholder='id'
+              onChange={handleIndexCursorChange}
+            />
+            所有
+          </label>
+          <label>
+            <input
+              type='radio'
+              name='status'
+              checked={radio === '1'}
+              value='1'
+              placeholder='id'
+              onChange={handleIndexCursorChange}
+            />
+            完成
+          </label>
+          <label>
+            <input
+              type='radio'
+              name='status'
+              checked={radio === '2'}
+              value='2'
+              placeholder='id'
+              onChange={handleIndexCursorChange}
+            />
+            未完成
+          </label>
+        </div>
       </header>
       <ul className='list'>
         {list.map(li => {
@@ -130,7 +230,7 @@ function App() {
           return (
             <li key={time}>
               <div className='txt'>
-                {moment(time).format('hh:mm ss')} - {value}
+                {time} - {value}
               </div>
               <input checked={status} type='checkbox' className='checkbox' onChange={() => handleCheckboxChange(li, !status)} />
               <i onClick={e => handleDel(e, li)}>×</i>
